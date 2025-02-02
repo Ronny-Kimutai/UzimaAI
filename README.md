@@ -1,2 +1,3 @@
 A user-friendly platform that primarily continuously and remotely monitors vital signs, triggers warnings for adverse events and deteriorating conditions, and provides personalized, AI-processed dietary recommendations tailored to the user's health conditions and location for holistic health management.
-![My Image]("C:\Users\lenovo\Desktop\Ronny\IoT and Embedded Systems\ILAB-Afralti and Personal Projects\Personal\Health Monitoring Project - Gabriel\Health Monitoring Website\Screenshot.png")
+
+![Screenshot](https://github.com/user-attachments/assets/c003e93a-2f6b-44d7-9d4d-76a6846f4996)
