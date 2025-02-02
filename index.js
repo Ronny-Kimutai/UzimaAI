@@ -4,7 +4,8 @@
 //npm install mqtt --save
 //I can either npm install or CDN
 
-require('dotenv').config(); // Load environment variables from .env file
+// Load environment variables from .env file
+require('dotenv').config(); 
 
 // Import required libraries
 const mqtt = require('mqtt');
@@ -95,7 +96,6 @@ client.on('message', (topic, payload) => {
 });
 
 // Firebase Authentication Endpoints
-
 // Register a new user
 app.post('/register', async (req, res) => {
     const { email, password, full_name } = req.body;
