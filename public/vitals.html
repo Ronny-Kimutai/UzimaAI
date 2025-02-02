@@ -1,0 +1,832 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.js" integrity="sha512-luMnTJZ7oEchNDZAtQhgjomP1eZefnl82ruTH/3Oj/Yu5qYtwL7+dVRccACS/Snp1lFXq188XFipHKYE75IaQQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <!-- Chart -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://cdn.plot.ly/plotly-2.32.0.min.js" charset="utf-8"></script>
+
+    
+    <title>Vitals</title>
+    <style>
+        :root{
+    --primaryColor: #000916;
+    --secondaryColor: #130f40;
+    --fontColor: #ffff;
+    --backgroundColor: #1e1f21;  
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    outline: none;
+    font-family: 'Nunito', sans-serif;
+}
+
+body{
+    width: 100%;
+    max-width: 1500px;
+    background-image: linear-gradient(to right top, #062452, #0a1f4e, #0d1a49, #101545, #130f40);
+    background-repeat: no-repeat;
+    color: var(--fontColor);
+}
+
+.navbar{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    gap: 3rem;
+    position: fixed;
+    top: 0;
+    z-index: 10;
+    background: transparent;
+}
+
+.nav-left{
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.nav-right{
+    display: flex;
+    gap: 1rem;
+}
+
+.search{
+    display: flex;
+    align-items: center;
+    background-color: var(--primaryColor);
+    box-shadow: rgba(99,99,99,0.2)0px 2px 8px 0px;
+    padding: 5px 10px;
+    width: 100%;
+    max-width: 300px;
+    border-radius: 20px;
+}
+
+.search input{
+    width: 90%;
+    margin-left: 10px;
+    border: none;
+    background-color: transparent;
+}
+
+.notification{
+    background-color: var(--primaryColor);
+    box-shadow: rgba(99,99,99,0.2)0px 2px 8px 0px;
+    padding: 10px;
+    border-radius: 50%;
+}
+
+.container{
+    width: 100%;
+    height: max-content;
+    padding: 2rem;
+    margin: 4rem 0;
+}
+
+.sidebar{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: fixed;
+    top: 5rem;
+    left: 1rem;
+    z-index: 1;
+    width: 60px;
+    height: 100%;
+}
+
+.profile{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 1rem auto;
+    width: 100%;
+}
+
+.profile-image{
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: block;
+    margin-bottom: 1rem;
+    box-shadow: rgba(99,99,99,0.2)0px 2px 8px 0px;
+}
+
+.profile h3{
+    font-size: 14px;
+    text-align: center;
+}
+
+.profile p{
+    display: none;
+}
+
+.menu{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 95%;
+}
+
+.menu-detail{
+    margin: 0.3rem 0;
+    padding: 0.5rem 1rem;
+    width: 100%;
+    cursor: pointer;
+}
+
+.menu-detail:hover{
+    background-color: var(--primaryColor);
+    box-shadow: rgba(99,99,99,0.2)0px 2px 8px 0px;
+    border-radius: 20px;
+}
+
+.menu-detail a{
+    text-decoration: none;
+    color: white;
+    display: flex;
+}
+
+.menu-detail a span{
+    display: none;
+}
+
+.menu-icon{
+    font-size: 24px;
+    margin-right: 10px;
+    color: var(--fontColor);
+    text-shadow: rgba(99,99,99,0.2)0px 2px 8px 0px;
+}
+
+.menu-active{
+    background-color: var(--primaryColor);
+    box-shadow: rgba(99,99,99,0.2)0px 2px 8px 0px;
+    border-radius: 20px;
+}
+
+.main-container{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    z-index: 1;
+    height: 100%;
+    min-height: 100vh;
+    width: 95%;
+    left: 70px;
+    position: relative;
+}
+
+.left-container{
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.right-container{
+    flex: 0.4;
+    gap: 2rem; 
+}
+
+.wrapper{
+    display:flex;
+    flex-wrap: wrap;
+    width: 100%;
+    gap: 2rem;
+}
+
+.card-wrapper{
+    flex: 1;
+    display: flex;
+    gap: 2rem;
+}
+
+.card{
+    position: relative;
+    width: 100%;
+    height:100%;
+    min-height: 100px;
+    background-color: darkslateblue;
+    box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(20px);
+    border-radius: 10px;
+    padding: 1rem;
+}
+
+.social-icon{
+    font-size:30px;
+    margin-bottom: 10px;
+}
+
+.count{
+    font-size: 25px;
+}
+
+.fa-mask-ventilator{
+    color: green;
+}
+
+.fa-droplet{
+    color: #f00;
+}
+
+.fa-heart{
+    color: #126de6;
+}
+
+.fa-temperature-three-quarters{
+    color: #1d9bf0;
+}
+
+.dropdown{
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: inline-block;
+}
+
+.btn-more{
+    border: none;
+    cursor: pointer;
+    background-color: transparent;
+}
+
+.dropdown-content{
+    display: none;
+    position: absolute;
+    background: var(--primaryColor);
+    border-radius: 4px;
+    right: 1;
+}
+
+.dropdown-content a{
+    color: var(--fontColor);
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    font-size: 12px;
+}
+
+.dropdown-content a:hover{
+    background-color: var(--secondaryColor);
+}
+
+.dropdown:hover .dropdown-content{
+    display: block;
+}
+
+.btn-more:hover, .dropdown:hover .btn-more{
+    color: var(--fontColor);
+}
+
+.title-wrapper{
+    display: flex;
+    justify-content: center;
+    color: black;
+}
+
+.filter a{
+    font-size: 12px;
+    text-decoration: none;
+    color: white;
+    padding: 2px;
+}
+
+.filter .active{
+    color: white;
+    font-weight: bold;
+    border-bottom: 2px solid white;
+}
+
+.filter a:hover{
+    color: white;
+    font-weight: bold;
+    border-bottom: 2px solid white;
+}
+
+
+.rounded-container {
+    width: 100%;  
+    display: flex;  
+}
+.chart-container {
+    flex: 1;  
+    margin-right: 10px;  
+    border-radius: 15px;  
+    overflow: hidden;  
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);  
+}
+.chart {
+    width: 100%;
+    height: 100%;
+}
+
+
+.title {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+    color: #ff04ff;
+    text-align: center;
+}
+
+.notes-section, .medication-section {
+    margin-bottom: 15px;
+}
+
+.notes-section h4, .medication-section h4 {
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+    color: #ff04ff;;
+}
+
+.doctor-notes, .medication-list {
+    list-style-type: disc;
+    padding-left: 20px;  
+    margin: 0;
+    color: white;
+}
+
+.doctor-notes li, .medication-list li {
+    margin-bottom: 5px; 
+}
+
+.bottom-container{
+    width: 100%;
+}
+
+#map{
+    height: 500px;
+    border-radius: 10px;
+}
+
+/*menu click*/
+
+.sidebar.active{
+    width: 200px;
+}
+
+.sidebar.active .profile-image{
+    width: 120px;
+    height: 120px;
+}
+
+.sidebar.active .profile p,
+.sidebar.active .menu-detail a span{
+    display: block;
+}
+
+.sidebar.active ~ .main-container{
+    .left-container{
+        width: 500px;
+    }
+    left: 200px;
+    width: 85%;
+}
+
+.sidebar.active .profile h3{
+    font-size: 20px;
+}
+
+/* Mobile Screen*/
+
+@media screen and (max-width: 680px){
+    .sidebar{
+        flex-direction:row;
+        z-index: 100;
+        background-color: black;
+        height: 60px;
+        width: 100%;
+        left: 0;
+        bottom: 0;
+        top:unset;
+    }
+
+    .sidebar.active ~ .main-container{
+        left: 0%;
+        width: 100%;
+    }
+    .menu{
+        flex-direction: row;
+    }
+    .profile{
+        display: none;
+    }
+    .main-container{
+        left: 0;
+        width: 100%;
+    }
+    .right-container{
+        flex: 1;
+    }
+}
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class = "navbar" >
+        <div class = "nav-left">
+            <i class = "menu-btn fas fa-bars"></i>
+            <h2 class = "logo">UZIMA</h2>
+        </div>
+        <div class = "nav-right">
+            <div class = "search">
+                <i class = "fas fa-search"></i>
+                <input type="text" placeholder="search...">
+            </div>
+            <div class = "notification">
+                <i class = "fas fa-bell"></i>
+            </div>
+        </div>
+    </nav>
+    <div class = "container">
+      <!-- sidebar -->
+      <div class="sidebar">
+        <div class = "profile">
+            <img class="profile-image" src="images/profile.jpg">
+            <h3>Pamela Talam</h3>
+            <p>Patient</p>
+        </div>
+        <div class = "menu">
+            <div class = "menu-detail menu-active">
+                <a href="#">
+                    <i class = "fas fa-chart-pie menu-icon"></i> <span>Vitals</span>     
+                </a>
+            </div>
+            <div class="menu-detail">
+                <a href="#">
+                    <i class="fa-solid fa-stethoscope menu-icon"></i> <span>Medical History</span>
+                </a>
+            </div>
+            <div class="menu-detail">
+                <a href="patients.html">
+                    <i class = "fa-solid fa-bed menu-icon"></i> <span> Patients</span>
+                </a>
+            </div>
+            <div class="menu-detail">
+                <a href="#">
+                    <i class = "fas fa-cog menu-icon"></i> <span>Settings</span>
+                </a>
+            </div>
+            <div class="menu-detail">
+                <a href="index.html">
+                    <i class="fas fa-sign-out-alt menu-icon"></i> <span>Logout</span>
+                </a>
+            </div>
+         </div>
+      </div>
+      <!-- main content -->
+      <div class="main-container">
+        <!-- left -->
+        <div class = "left-container">
+            <div class = "wrapper">
+                <div class = "card-wrapper">
+                    <div class = "card">
+                        <i class="fa-solid fa-mask-ventilator"></i>
+                        <h1 class= "count">
+                            <div id="blood_oxygen">...</div>
+                        </h1>
+                        <small>Blood Oxygen (SpO₂)</small>
+                        <div class = "dropdown">
+                            <button class = "btn btn-more">
+                                <i class = "fas fa-ellipsis-v"></i>
+                            </button>
+                            <div class = "dropdown-content">
+                                <a href="#">Details</a>
+                                <a href="#">Download</a>
+                                <a href="#">Share</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class = "card">
+                        <i class="fa-solid fa-droplet"></i>
+                        <h1 class = "count">
+                            <div id="blood_pressure">...</div>
+                        </h1>
+                        <small>Blood Pressure</small>
+                        <div class = "dropdown">
+                            <button class = "btn btn-more">
+                                <i class = "fas fa-ellipsis-v"></i>
+                            </button>
+                            <div class = "dropdown-content">
+                                <a href="#">Details</a>
+                                <a href="#">Download</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class = "card-wrapper">
+                    <div class = "card">
+                        <i class="fa-solid fa-heart"></i>
+                        <h1 class= "count">
+                            <div id="heart_rate">...</div>
+                        </h1>
+                        <small>Heart Rate</small>
+                        <div class = "dropdown">
+                            <button class = "btn btn-more">
+                                <i class = "fas fa-ellipsis-v"></i>
+                            </button>
+                            <div class = "dropdown-content">
+                                <a href="#">Details</a>
+                                <a href="#">Download</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class = "card">
+                        <i class="fa-solid fa-temperature-three-quarters"></i>
+                            <h1 class= "count">
+                                <div id="temperature">...</div>
+                            </h1>
+                            <small>Temperature</small>
+                            <div class = "dropdown">
+                                <button class = "btn btn-more">
+                                  <i class = "fas fa-ellipsis-v"></i>
+                                </button>
+                                <div class = "dropdown-content">
+                                <a href="#">Details</a>
+                                <a href="#">Download</a>
+                                </div>
+                            </div>
+                    </div>
+                </div>  
+            </div>
+            <div class = "wrapper">
+                    <div class="rounded-container">
+                        <div id="chart1-container" class="chart-container">
+                            <div id="chart1" class="chart"></div>
+                        </div>
+                        <div id="chart2-container" class="chart-container">
+                            <div id="chart2" class="chart"></div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+
+        <!-- right -->
+        <div class = "right-container">
+            <div class="card">
+                <h3 class="title">Doctor's Notes and Medication</h3>
+                <div class="notes-section">
+                    <h4>Doctor's Notes</h4>
+                    <ul class="doctor-notes">
+                        <li>Symptoms: Intermittent headaches, occasional dizziness, increased fatigue, and difficulty concentrating at work.</li>
+                        <li>Medical History: Hypertension managed with medication.</li>
+                        <li>Physical Examination: Blood pressure of 140/85 mmHg, heart rate of 78 bpm.</li>
+                        <li>Recommendations: Continue antihypertensive medication, increase hydration, use over-the-counter analgesics as needed.</li>
+                    </ul>
+                </div>
+                <div class="medication-section">
+                    <h4>Medication</h4>
+                    <ul class="medication-list">
+                        <li>Medication 1: 50mg twice a day</li>
+                        <li>Medication 2: 100mg once a day</li>
+                        <li>Medication 3: 200mg as needed</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- bottom -->
+        <div class="bottom-container">
+            <div class="card">
+                <div id="map"></div> 
+            </div>
+        </div>        
+      </div>
+    </div>
+</body>
+<script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+<script>
+  $(document).ready(function(){
+    const menu = document.querySelector('.menu-btn');
+    const sidebar = document.querySelector('.sidebar');
+
+    menu.addEventListener('click', function(){
+        sidebar.classList.toggle('active');
+        if(window.innerWidth<=768){
+            sidebar.classList.remove('active');
+        }
+    });
+
+    //navbar color
+    $(window).scroll(function(){
+        var scroll = $(window).scrollTop();
+        if (scroll > 50){
+            $('.navbar').css('background', '#101545');
+            $('.navbar').css('box-shadow', 'rgba(0, 0, 0, 0.1) 0px 4px 12px');
+        }
+        else{
+            $('.navbar').css('background', 'transparent');
+            $('.navbar').css('box-shadow', 'none');
+        }
+    });
+
+    //Socket IO
+    const socket = io();
+    
+    //Plottly Charts
+    //Temperature Graph
+    const temperatureTrace = {
+    x: [ ],
+    y: [ ],
+    type: 'line',
+    name: 'Temperature (°C)',
+    marker: {
+        color: 'red' 
+    }
+    };
+
+    const temperatureData = [temperatureTrace];
+
+    const temperatureLayout = {
+   
+    title:'Temperature',
+
+    font: {
+        color: 'Blue'  
+    },
+    
+    xaxis: {
+        title: 'Time',
+        tickformat: '%H:%M'
+    },
+
+    yaxis: {
+        title: 'Temperature (°C)'
+    },
+    };
+
+    Plotly.newPlot('chart1', temperatureData, temperatureLayout);
+
+    // Handle incoming data
+    socket.on('sensorDataUpdate', (data) => {
+    const { temperature } = data;
+
+
+    // Add new data to the temperature chart
+    const now = new Date();
+    const temperatureUpdate = {
+        x: [[now]],
+        y: [[temperature]]
+    };
+
+    Plotly.extendTraces('chart1', temperatureUpdate, [0]);
+
+
+    //Remove old data to keep the Temperature chart manageable (optional)
+    const maxPoints = 5;
+    const currenttemperatureData = temperatureTrace.x.length;
+    if (currenttemperatureData > maxPoints) {
+        Plotly.relayout('chart1', {
+            xaxis: {
+                range: [temperatureTrace.x[currenttemperatureData - maxPoints], temperatureTrace.x[currenttemperatureData - 1]]
+            }
+        });
+    }
+    });
+
+    //Heart Rate Graph
+    const heart_rateTrace = {
+    x: [ ],
+    y: [ ],
+    type: 'line',
+    name: 'Heart Rate (BPM)',
+    marker: {
+        color: 'red' 
+    }
+    };
+
+    const heart_rateData = [heart_rateTrace];
+
+    const heart_rateLayout = {
+   
+    title:'Heart Rate',
+
+    font: {
+        color: 'Blue'  
+    },
+    
+    xaxis: {
+        title: 'Time',
+        tickformat: '%H:%M'
+    },
+
+    yaxis: {
+        title: 'Heart Rate (BPM)'
+    },
+    };
+
+    Plotly.newPlot('chart2', heart_rateData, heart_rateLayout);
+
+    // Handle incoming data
+    socket.on('sensorDataUpdate', (data) => {
+    const { heart_rate} = data;
+
+    // Add new data to the heart_rate chart
+    const now = new Date();
+    const heart_rateUpdate = {
+        x: [[now]],
+        y: [[heart_rate]]
+    };
+
+    Plotly.extendTraces('chart2', heart_rateUpdate, [0]);
+
+
+    //Remove old data to keep the Heart Rate chart manageable (optional)
+    const maxPoints = 5;
+    const currentheart_rateData = heart_rateTrace.x.length;
+    if (currentheart_rateData > maxPoints) {
+        Plotly.relayout('chart2', {
+            xaxis: {
+                range: [heart_rateTrace.x[currentheart_rateData - maxPoints], heart_rateTrace.x[currentheart_rateData - 1]]
+            }
+        });
+    }
+   
+    });
+
+    // Loading the Google Maps API from .env
+    async function loadGoogleMaps() {
+        try {
+            const response = await fetch('/api/google-maps-key');
+            const data = await response.json();
+
+            if (!data.key) {
+                throw new Error('Google Maps API key not found');
+             }
+
+            const script = document.createElement('script');
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${data.key}&callback=initMap`;
+            script.async = true;
+            script.defer = true;
+            document.body.appendChild(script);
+        } catch (error) {
+            console.error('Error loading Google Maps:', error);
+        }
+    }
+
+    //Mapping
+    // Initialize Google Map
+    let map;
+    let marker;
+
+    function initMap(latitude, longitude) {
+
+        /*These values are placeholders or defaults that will be used if no 
+        specific latitude and longitude are provided when calling the initMap function*/
+
+        const sensorLatitude = latitude || -1.30054; // Default latitude if not provided
+        const sensorLongitude = longitude || 36.80695; // Default longitude if not provided
+    
+        if (!map) {
+            // Initialize map if it doesn't exist
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: sensorLatitude, lng: sensorLongitude },
+                zoom: 15
+            });
+    
+            // Create marker and set its initial position
+            marker = new google.maps.Marker({
+                map: map,
+                position: { lat: sensorLatitude, lng: sensorLongitude },
+                title: 'Sensor Location'
+            });
+        } else {
+            // Update existing map and marker with new position
+            marker.setPosition({ lat: sensorLatitude, lng: sensorLongitude });
+            map.panTo({ lat: sensorLatitude, lng: sensorLongitude });
+        }
+    }
+
+    //Cards
+    // Handle incoming data
+    socket.on('sensorDataUpdate', (data) => {
+        const { temperature, heart_rate, blood_oxygen, blood_pressure,latitude,longitude} = data;
+
+        // Update Google Map with new coordinates
+        initMap(latitude, longitude);
+
+        document.getElementById('blood_oxygen').textContent = blood_oxygen + ' %';
+        document.getElementById('blood_pressure').textContent = blood_pressure + ' mmHg';
+        document.getElementById('heart_rate').textContent = heart_rate + ' BPM';
+        document.getElementById('temperature').textContent = temperature + ' °C';
+       
+    });
+    window.onload = loadGoogleMaps;
+});  
+</script>
+</html>

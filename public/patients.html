@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patients List</title>
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e0f7fa; /* Light cyan background */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            text-align: center;
+            margin: 20px;
+            color: #00796b; /* Teal color */
+            font-size: 2.5em;
+        }
+        table {
+            width: 90%;
+            max-width: 1200px;
+            border-collapse: collapse;
+            margin: 20px auto;
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #00796b; /* Teal color */
+            color: #fff;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        td {
+            color: #555;
+        }
+        tr:hover {
+            background-color: #b2dfdb; /* Light teal */
+        }
+        a {
+            color: #00796b;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .fas {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1><i class="fas fa-heartbeat"></i> Patients List</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Age</th>
+                <th>Actions</th>
+                <!-- Add more columns as needed -->
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>Pamela Talam</td>
+                <td>42</td>
+                <td><a href="vitals.html"><i class="fas fa-stethoscope"></i> View Vitals</a></td>
+            </tr>
+            <!-- Add more rows for additional patients -->
+        </tbody>        
+    </table>
+</body>
+</html>
